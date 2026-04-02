@@ -23,18 +23,45 @@ APP_TITLE = "Sex-specific ICH Prognosis Prediction Model"
 APP_SUBTITLE = "Switch between male and female models and run prognosis prediction."
 CLASS_LABELS = {0: "Favorable outcome", 1: "Poor outcome"}
 
-MALE_FEATURES = ["Age", "NIHSS", "GCS", "Hematoma volume", "WBC", "SIRI"]
-FEMALE_FEATURES = ["BUN", "Age", "NIHSS", "GCS", "Hematoma volume", "Time to CT"]
+MALE_FEATURES = [
+    "Age",
+    "NIHSS",
+    "GCS",
+    "SBP",
+    "Hematoma Volume",
+    "HB",
+    "LYM",
+    "NLR",
+    "sCr",
+    "IVH",
+    "SAP",
+    "Time to CT",
+]
+FEMALE_FEATURES = [
+    "Age",
+    "NIHSS",
+    "GCS",
+    "Hematoma Volume",
+    "Time to CT",
+    "NLR",
+    "AST",
+    "SAP",
+]
 
-FEATURE_DESCRIPTIONS = {
-    "Age": "Age",
-    "NIHSS": "NIHSS score",
-    "GCS": "GCS score",
-    "Hematoma volume": "Hematoma volume",
-    "WBC": "White blood cell count",
-    "SIRI": "Systemic inflammatory response index",
-    "BUN": "Blood urea nitrogen",
-    "Time to CT": "Time from symptom onset to CT scan",
+FEATURE_LABELS = {
+    "Age": {"zh": "年龄，岁", "en": "Age"},
+    "NIHSS": {"zh": "NIHSS评分", "en": "NIHSS"},
+    "GCS": {"zh": "GCS评分", "en": "GCS"},
+    "SBP": {"zh": "入院收缩压，mm/Hg", "en": "SBP"},
+    "Hematoma Volume": {"zh": "血肿体积，ml", "en": "Hematoma Volume"},
+    "HB": {"zh": "血红蛋白，g/L", "en": "HB"},
+    "LYM": {"zh": "淋巴细胞计数,10^9/L", "en": "LYM"},
+    "NLR": {"zh": "中性粒细胞/淋巴细胞比值", "en": "NLR"},
+    "sCr": {"zh": "血肌酐，μmol/L", "en": "sCr"},
+    "IVH": {"zh": "脑室出血", "en": "IVH"},
+    "SAP": {"zh": "卒中相关性肺炎", "en": "SAP"},
+    "Time to CT": {"zh": "发病到CT检查时间，h", "en": "Time to CT"},
+    "AST": {"zh": "谷草转氨酶，U/L", "en": "AST"},
 }
 
 MODEL_CONFIG = {
@@ -52,32 +79,37 @@ BASE_DIR = Path(__file__).resolve().parent
 
 HARD_CODED_FEATURE_STATS = {
     "Male": {
-        "Age": {"min": 23.0, "max": 91.0, "median": 61.0, "step": 1.0},
-        "NIHSS": {"min": 0.0, "max": 40.0, "median": 8.0, "step": 1.0},
-        "GCS": {"min": 3.0, "max": 15.0, "median": 14.0, "step": 1.0},
-        "Hematoma volume": {"min": 0.16, "max": 147.49, "median": 12.8125, "step": 0.1},
-        "WBC": {"min": 3.56, "max": 25.9, "median": 9.0, "step": 0.1},
-        "SIRI": {
-            "min": 0.2580357180156658,
-            "max": 46.52056799999999,
-            "median": 2.545434663432016,
-            "step": 0.01,
-        },
+        "Age": {"min": 0.0, "max": 100.0, "median": 60.0, "step": 1.0},
+        "NIHSS": {"min": 0.0, "max": 42.0, "median": 10.0, "step": 1.0},
+        "GCS": {"min": 3.0, "max": 15.0, "median": 13.0, "step": 1.0},
+        "SBP": {"min": 60.0, "max": 250.0, "median": 140.0, "step": 1.0},
+        "Hematoma Volume": {"min": 0.0, "max": 200.0, "median": 15.0, "step": 0.1},
+        "HB": {"min": 50.0, "max": 200.0, "median": 130.0, "step": 1.0},
+        "LYM": {"min": 0.0, "max": 10.0, "median": 1.5, "step": 0.1},
+        "NLR": {"min": 0.0, "max": 100.0, "median": 5.0, "step": 0.1},
+        "sCr": {"min": 10.0, "max": 1500.0, "median": 80.0, "step": 1.0},
+        "IVH": {"min": 0.0, "max": 1.0, "median": 0.0, "step": 1.0},
+        "SAP": {"min": 0.0, "max": 1.0, "median": 0.0, "step": 1.0},
+        "Time to CT": {"min": 0.0, "max": 168.0, "median": 4.0, "step": 0.1},
     },
     "Female": {
-        "BUN": {"min": 1.9, "max": 18.2, "median": 5.0, "step": 0.1},
-        "Age": {"min": 21.0, "max": 91.0, "median": 64.0, "step": 1.0},
-        "NIHSS": {"min": 0.0, "max": 40.0, "median": 11.0, "step": 1.0},
+        "Age": {"min": 0.0, "max": 100.0, "median": 60.0, "step": 1.0},
+        "NIHSS": {"min": 0.0, "max": 42.0, "median": 10.0, "step": 1.0},
         "GCS": {"min": 3.0, "max": 15.0, "median": 13.0, "step": 1.0},
-        "Hematoma volume": {"min": 0.164, "max": 111.33, "median": 12.2235, "step": 0.1},
-        "Time to CT": {
-            "min": 0.283333332510665,
-            "max": 71.835000000021,
-            "median": 3.313611110381315,
-            "step": 0.1,
-        },
+        "Hematoma Volume": {"min": 0.0, "max": 200.0, "median": 15.0, "step": 0.1},
+        "Time to CT": {"min": 0.0, "max": 168.0, "median": 4.0, "step": 0.1},
+        "NLR": {"min": 0.0, "max": 100.0, "median": 5.0, "step": 0.1},
+        "AST": {"min": 0.0, "max": 1000.0, "median": 25.0, "step": 1.0},
+        "SAP": {"min": 0.0, "max": 1.0, "median": 0.0, "step": 1.0},
     },
 }
+
+
+def format_feature_label(feature: str) -> str:
+    labels = FEATURE_LABELS.get(feature, {"zh": "", "en": feature})
+    zh = labels.get("zh", "").strip()
+    en = labels.get("en", feature).strip()
+    return f"{zh} - {en}" if zh else en
 
 
 def _find_model_step_with_model_path(model: Any) -> tuple[str | None, Any]:
@@ -291,7 +323,7 @@ def render_sidebar(model_choice: str, config: dict[str, Any]) -> None:
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Variable Definitions")
     for f in config["features"]:
-        st.sidebar.markdown(f"- **{f}**: {FEATURE_DESCRIPTIONS.get(f, f)}")
+        st.sidebar.markdown(f"- **{format_feature_label(f)}**")
 
 
 def main() -> None:
@@ -325,7 +357,7 @@ def main() -> None:
             stat = stats[feature]
             with cols[idx % 2]:
                 user_inputs[feature] = st.number_input(
-                    label=f"{feature} ({FEATURE_DESCRIPTIONS.get(feature, feature)})",
+                    label=format_feature_label(feature),
                     value=float(stat["median"]),
                     step=float(stat["step"]),
                     format="%.4f",
