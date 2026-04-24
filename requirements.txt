@@ -1,11 +1,6 @@
-streamlit==1.36.0
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.7.2
-joblib==1.4.2
-cloudpickle==3.1.1
-shap==0.45.0
-shapiq==1.3.1
+streamlit
 tabpfn==6.0.5
-matplotlib==3.7.1
-torch==2.3.1
+scikit-learn==1.6.1
+numpy==2.2.6
+pandas==2.3.3
+joblib
