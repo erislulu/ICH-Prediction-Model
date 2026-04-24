@@ -1,1 +1,23 @@
-
+{
+  "ckpt_filename": "tabpfn-v2-classifier-finetuned-vutqq28w-boexhu6h.ckpt",
+  "fitted_model_filename": "tabpfn_male_model.pkl",
+  "feature_names": [
+    "Age",
+    "NIHSS",
+    "GCS",
+    "SBP",
+    "Hematoma Volume",
+    "HB",
+    "LYM",
+    "NLR",
+    "sCr",
+    "IVH",
+    "SAP",
+    "Time to CT"
+  ],
+  "python_version": "3.10.19 | packaged by conda-forge | (main, Oct 22 2025, 22:23:22) [MSC v.1944 64 bit (AMD64)]",
+  "tabpfn_version": "6.0.5",
+  "sklearn_version": "1.6.1",
+  "numpy_version": "2.2.6",
+  "pandas_version": "2.3.3"
+}
