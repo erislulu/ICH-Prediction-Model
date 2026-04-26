@@ -15,9 +15,20 @@ st.set_page_config(
     layout="wide",
 )
 
-APP_TITLE = "Sex-specific ICH Prognosis Prediction Model"
-APP_SUBTITLE = "Switch between male and female models and run prognosis prediction."
-CLASS_LABELS = {0: "Favorable outcome", 1: "Poor outcome"}
+APP_TITLE_ZH = "性别特异性脑出血预后预测模型"
+APP_TITLE_EN = "Sex-specific ICH Prognosis Prediction Model"
+APP_SUBTITLE_ZH = "请选择男性或女性模型进行预后预测。"
+APP_SUBTITLE_EN = "Select the male or female model to run prognosis prediction."
+
+CLASS_LABELS = {
+    0: "良好预后 / Favorable outcome",
+    1: "不良预后 / Poor outcome",
+}
+
+MODEL_LABELS = {
+    "Male": "男性\nMale",
+    "Female": "女性\nFemale",
+}
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_ROOT = BASE_DIR / "models"
@@ -48,19 +59,58 @@ MODEL_CONFIG = {
 BINARY_FEATURES = {"IVH", "SAP"}
 
 FEATURE_DESCRIPTIONS = {
-    "Age": "Age, years",
-    "NIHSS": "National Institutes of Health Stroke Scale score",
-    "GCS": "Glasgow Coma Scale score",
-    "SBP": "Systolic blood pressure, mmHg",
-    "Hematoma Volume": "Hematoma volume, mL",
-    "HB": "Hemoglobin, g/L",
-    "LYM": "Lymphocyte count, 10⁹/L",
-    "NLR": "Neutrophil-to-lymphocyte ratio",
-    "sCr": "Serum creatinine, μmol/L",
-    "IVH": "Intraventricular hemorrhage",
-    "SAP": "Stroke-associated pneumonia",
-    "Time to CT": "Time from symptom onset to CT scan, hours",
-    "AST": "Aspartate aminotransferase, U/L",
+    "Age": {
+        "zh": "年龄，岁",
+        "en": "Age, years",
+    },
+    "NIHSS": {
+        "zh": "美国国立卫生研究院卒中量表评分",
+        "en": "National Institutes of Health Stroke Scale score",
+    },
+    "GCS": {
+        "zh": "格拉斯哥昏迷量表评分",
+        "en": "Glasgow Coma Scale score",
+    },
+    "SBP": {
+        "zh": "收缩压，mmHg",
+        "en": "Systolic blood pressure, mmHg",
+    },
+    "Hematoma Volume": {
+        "zh": "血肿体积，mL",
+        "en": "Hematoma volume, mL",
+    },
+    "HB": {
+        "zh": "血红蛋白，g/L",
+        "en": "Hemoglobin, g/L",
+    },
+    "LYM": {
+        "zh": "淋巴细胞计数，10⁹/L",
+        "en": "Lymphocyte count, 10⁹/L",
+    },
+    "NLR": {
+        "zh": "中性粒细胞与淋巴细胞比值",
+        "en": "Neutrophil-to-lymphocyte ratio",
+    },
+    "sCr": {
+        "zh": "血清肌酐，μmol/L",
+        "en": "Serum creatinine, μmol/L",
+    },
+    "IVH": {
+        "zh": "脑室内出血",
+        "en": "Intraventricular hemorrhage",
+    },
+    "SAP": {
+        "zh": "卒中相关性肺炎",
+        "en": "Stroke-associated pneumonia",
+    },
+    "Time to CT": {
+        "zh": "发病至 CT 检查时间，小时",
+        "en": "Time from symptom onset to CT scan, hours",
+    },
+    "AST": {
+        "zh": "天冬氨酸氨基转移酶，U/L",
+        "en": "Aspartate aminotransferase, U/L",
+    },
 }
 
 FEATURE_STATS = {
@@ -91,19 +141,30 @@ FEATURE_STATS = {
 }
 
 
+def zh_en(zh: str, en: str, separator: str = "\n") -> str:
+    return f"{zh}{separator}{en}"
+
+
+def feature_description(feature: str) -> str:
+    desc = FEATURE_DESCRIPTIONS.get(feature)
+    if desc is None:
+        return feature
+    return zh_en(desc["zh"], desc["en"])
+
+
 def format_class_label(value: Any) -> str:
     try:
         ivalue = int(value)
     except Exception:
         return str(value)
-    return CLASS_LABELS.get(ivalue, f"Class {ivalue}")
+    return CLASS_LABELS.get(ivalue, f"类别 / Class {ivalue}")
 
 
 def read_metadata(model_choice: str) -> dict[str, Any]:
     config = MODEL_CONFIG[model_choice]
     metadata_path = config["model_dir"] / config["metadata_file"]
     if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+        raise FileNotFoundError(f"未找到 metadata 文件 / Metadata file not found: {metadata_path}")
     with open(metadata_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -161,9 +222,9 @@ def load_model_and_metadata(model_choice: str) -> tuple[Any, dict[str, Any], Pat
     ckpt_path = model_dir / ckpt_file
 
     if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}")
+        raise FileNotFoundError(f"未找到模型文件 / Model file not found: {model_path}")
     if not ckpt_path.exists():
-        raise FileNotFoundError(f"CKPT file not found: {ckpt_path}")
+        raise FileNotFoundError(f"未找到 CKPT 文件 / CKPT file not found: {ckpt_path}")
 
     os.environ["TABPFN_MODEL_CACHE_DIR"] = str(model_dir.resolve())
     model = joblib.load(model_path)
@@ -175,7 +236,7 @@ def get_feature_stats(model_choice: str, feature: str) -> dict[str, float]:
     try:
         return FEATURE_STATS[model_choice][feature]
     except KeyError as exc:
-        raise KeyError(f"Missing feature stats for {model_choice} / {feature}") from exc
+        raise KeyError(f"缺少特征输入范围 / Missing feature stats for {model_choice} / {feature}") from exc
 
 
 def predict_with_model(model: Any, input_df: pd.DataFrame) -> dict[str, Any]:
@@ -212,19 +273,20 @@ def predict_with_model(model: Any, input_df: pd.DataFrame) -> dict[str, Any]:
 
 
 def render_sidebar(model_choice: str, metadata: dict[str, Any]) -> None:
-    st.sidebar.title("Model Settings")
-    st.sidebar.markdown(f"**System:** {APP_TITLE}")
-    st.sidebar.markdown(f"**Selected model:** {model_choice}")
-    st.sidebar.markdown(f"**Model file:** `{metadata['fitted_model_filename']}`")
+    st.sidebar.title(zh_en("模型设置", "Model Settings"))
+    st.sidebar.markdown(f"**{zh_en('系统：', 'System:', ' / ')}**  ")
+    st.sidebar.markdown(f"{APP_TITLE_ZH}  \n{APP_TITLE_EN}")
+    st.sidebar.markdown(f"**{zh_en('当前模型：', 'Selected model:', ' / ')}**  ")
+    st.sidebar.markdown(MODEL_LABELS.get(model_choice, model_choice))
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### Variable Definitions")
+    st.sidebar.markdown(f"### {zh_en('变量说明', 'Variable Definitions')}")
     for f in metadata["feature_names"]:
-        st.sidebar.markdown(f"- **{f}**: {FEATURE_DESCRIPTIONS.get(f, f)}")
+        st.sidebar.markdown(f"- **{f}**：{feature_description(f).replace(chr(10), '  <br>')}", unsafe_allow_html=True)
 
 
 def render_input_widget(model_choice: str, feature: str) -> float:
     stat = get_feature_stats(model_choice, feature)
-    label = f"{feature} ({FEATURE_DESCRIPTIONS.get(feature, feature)})"
+    label = f"{feature}：{feature_description(feature)}"
 
     if feature in BINARY_FEATURES:
         default_value = int(round(float(stat["median"])))
@@ -232,6 +294,7 @@ def render_input_widget(model_choice: str, feature: str) -> float:
         selected = st.selectbox(
             label=label,
             options=["No", "Yes"],
+            format_func=lambda x: "否\nNo" if x == "No" else "是\nYes",
             index=default_index,
             key=f"{model_choice}_{feature}",
         )
@@ -253,26 +316,35 @@ def render_input_widget(model_choice: str, feature: str) -> float:
 
 
 def main() -> None:
-    st.title(APP_TITLE)
-    st.caption(APP_SUBTITLE)
+    st.markdown(f"# {APP_TITLE_ZH}")
+    st.markdown(f"### {APP_TITLE_EN}")
+    st.caption(f"{APP_SUBTITLE_ZH}\n\n{APP_SUBTITLE_EN}")
 
-    model_choice = st.radio("Sex", options=["Male", "Female"], horizontal=True)
+    model_choice = st.radio(
+        zh_en("性别", "Sex"),
+        options=["Male", "Female"],
+        format_func=lambda x: MODEL_LABELS.get(x, x),
+        horizontal=True,
+    )
 
     try:
         model, metadata, model_path, ckpt_path = load_model_and_metadata(model_choice)
     except Exception as exc:
-        st.error(f"Failed to load model: {exc}")
+        st.error(f"模型加载失败 / Failed to load model: {exc}")
         st.info(
-            "Please check that the model folder contains metadata.json, the fitted .pkl model, "
-            "and the matching .ckpt file."
+            "请检查模型文件夹中是否包含 metadata.json、已训练的 .pkl 模型文件和对应的 .ckpt 文件。\n\n"
+            "Please check that the model folder contains metadata.json, the fitted .pkl model, and the matching .ckpt file."
         )
         return
 
     features = list(metadata["feature_names"])
     render_sidebar(model_choice, metadata)
 
-    st.subheader("Input Features")
-    st.write("Enter patient features below. Binary variables use No/Yes selection.")
+    st.subheader(zh_en("输入特征", "Input Features"))
+    st.write(
+        "请在下方输入患者特征。二分类变量请选择“否/是”。\n\n"
+        "Enter patient features below. For binary variables, select No/Yes."
+    )
 
     user_inputs: dict[str, float] = {}
     with st.form("prediction_form"):
@@ -281,7 +353,7 @@ def main() -> None:
             with cols[idx % 2]:
                 user_inputs[feature] = render_input_widget(model_choice, feature)
 
-        submitted = st.form_submit_button("Run Prediction", use_container_width=True)
+        submitted = st.form_submit_button(zh_en("运行预测", "Run Prediction", " / "), use_container_width=True)
 
     if not submitted:
         return
@@ -291,44 +363,39 @@ def main() -> None:
         input_df[c] = pd.to_numeric(input_df[c], errors="coerce")
 
     if input_df.isnull().any().any():
-        st.error("Invalid numeric input detected. Please check all fields.")
+        st.error("检测到无效数值输入，请检查所有字段。\n\nInvalid numeric input detected. Please check all fields.")
         return
 
     try:
         result = predict_with_model(model, input_df)
     except Exception as exc:
-        st.error(f"Prediction failed: {exc}")
-        st.write("Input data sent to the model:")
-        st.dataframe(input_df, use_container_width=True)
+        st.error(f"预测失败 / Prediction failed: {exc}")
         return
 
-    st.subheader("Prediction Result")
-    st.metric("Predicted Outcome", format_class_label(result["prediction"]))
+    st.subheader(zh_en("预测结果", "Prediction Result"))
+    st.metric(zh_en("预测结局", "Predicted Outcome", " / "), format_class_label(result["prediction"]))
 
     if result["prob_class_0"] is not None and result["prob_class_1"] is not None:
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown("**Probability of Favorable outcome**")
+            st.markdown("**良好预后概率 / Probability of Favorable outcome**")
             st.progress(float(result["prob_class_0"]))
             st.write(f"{result['prob_class_0']:.2%}")
         with c2:
-            st.markdown("**Probability of Poor outcome**")
+            st.markdown("**不良预后概率 / Probability of Poor outcome**")
             st.progress(float(result["prob_class_1"]))
             st.write(f"{result['prob_class_1']:.2%}")
     elif result["proba_vector"] is not None and result["classes"] is not None:
         proba_df = pd.DataFrame(
             {
-                "Outcome": [format_class_label(c) for c in result["classes"]],
-                "Probability": result["proba_vector"],
+                "结局 / Outcome": [format_class_label(c) for c in result["classes"]],
+                "概率 / Probability": result["proba_vector"],
             }
         )
-        st.markdown("**Outcome Probabilities**")
+        st.markdown("**结局概率 / Outcome Probabilities**")
         st.dataframe(proba_df, use_container_width=True)
     else:
-        st.warning("Model does not expose predict_proba; only class prediction is shown.")
-
-    with st.expander("Input values used for prediction"):
-        st.dataframe(input_df, use_container_width=True)
+        st.warning("模型未提供 predict_proba 方法，仅显示分类预测结果。\n\nModel does not expose predict_proba; only class prediction is shown.")
 
 
 if __name__ == "__main__":
